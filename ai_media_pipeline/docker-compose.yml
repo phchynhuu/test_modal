@@ -1,0 +1,92 @@
+version: "3.9"
+
+# ── Shared env for all services ───────────────────────────────────────────────
+x-common-env: &common-env
+  env_file: .env
+
+services:
+  # ── Infrastructure ─────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    command: redis-server --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── API server ─────────────────────────────────────────────────────────────
+  api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.api
+    ports: ["8000:8000"]
+    <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+      resources:
+        limits: { cpus: "1", memory: "512M" }
+
+  # ── Image-edit workers (fast, high-priority, CPU/light-GPU) ───────────────
+  worker-image-edit:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    <<: *common-env
+    environment:
+      QUEUE: image_edit_queue
+      CONCURRENCY: "8"
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+
+  # ── Generate workers (standard GPU) ───────────────────────────────────────
+  worker-generate:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    <<: *common-env
+    environment:
+      QUEUE: media_generate_queue
+      CONCURRENCY: "4"
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 2
+
+  # ── Video workers (heavy GPU, fewer but larger instances) ─────────────────
+  worker-video:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.worker
+    <<: *common-env
+    environment:
+      QUEUE: video_processing_queue
+      CONCURRENCY: "2"
+    depends_on:
+      redis:
+        condition: service_healthy
+    deploy:
+      replicas: 1
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]   # requires nvidia-container-toolkit
+
+  # ── Flower monitoring (optional, remove in prod) ──────────────────────────
+  flower:
+    image: mher/flower:2.0
+    command: celery flower --broker=${CELERY_BROKER_URL} --port=5555
+    ports: ["5555:5555"]
+    <<: *common-env
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles: ["monitoring"]

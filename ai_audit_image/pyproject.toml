@@ -1,0 +1,14 @@
+[project]
+name = "ai-audit-image"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "numpy>=2.4.4",
+    "openai>=2.32.0",
+    "pillow>=12.2.0",
+    "python-multipart>=0.0.18",
+    "uvicorn>=0.32.0",
+]

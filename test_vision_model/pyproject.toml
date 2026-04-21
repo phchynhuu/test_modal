@@ -1,0 +1,15 @@
+[project]
+name = "test-vision-model"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "accelerate>=1.13.0",
+    "diffusers>=0.37.1",
+    "modal>=1.4.1",
+    "torch>=2.11.0",
+    "torchaudio>=2.11.0",
+    "torchvision>=0.26.0",
+    "transformers>=5.5.0",
+]

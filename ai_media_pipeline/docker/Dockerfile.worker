@@ -1,0 +1,32 @@
+# ── Celery worker image ───────────────────────────────────────────────────────
+# This image is shared across all three worker types; the QUEUE env var and
+# --concurrency flag are set via the docker-compose service definition so
+# the same image runs with different queue/concurrency profiles.
+
+FROM python:3.12-slim AS base
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+RUN adduser --disabled-password --gecos "" workeruser && chown -R workeruser /app
+USER workeruser
+
+# QUEUE and CONCURRENCY are overridden per-service in docker-compose.yml
+ENV QUEUE=media_generate_queue
+ENV CONCURRENCY=4
+
+CMD celery -A app.workers.celery_app worker \
+    -Q ${QUEUE} \
+    --concurrency=${CONCURRENCY} \
+    --loglevel=info \
+    --without-heartbeat \
+    --without-gossip

@@ -1,0 +1,7 @@
+Kiểm tra texture hatching trên ảnh minh họa. Phân tích mật độ đường gạch (line density) trong vùng có nội dung (non-background). Đo average gradient magnitude trên content pixels (brightness > 20). Kết quả:
+
+Gradient 9.8 – 13.0 → PASS (texture chuẩn, scale ~40-60%)
+Gradient > 13.0 → FAIL — texture quá nhỏ (scale < 40%), đường gạch quá dày
+Gradient < 9.8 → FAIL — texture quá to (scale > 60%), đường gạch quá thưa
+
+Đồng thời đếm số oscillation peaks trên scan line 100px. Chuẩn: 8-10 peaks/100px. Quá nhỏ: >10. Quá to: <8.

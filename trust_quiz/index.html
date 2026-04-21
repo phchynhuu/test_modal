@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Head Pose Quiz</title>
+    <!--
+      Load MediaPipe directly from CDN via classic <script> tags.
+      This is the only reliable way to use MediaPipe in a Vite/ESM project —
+      the npm packages spawn WASM workers internally and cannot be pre-bundled.
+      The globals window.FaceMesh and window.Camera are used in useFaceMesh.js.
+    -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh/face_mesh.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
