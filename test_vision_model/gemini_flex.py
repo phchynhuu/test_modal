@@ -7,7 +7,7 @@ from google import genai
 from google.genai import types
 
 # ================= CONFIG =================
-API_KEY = "AQ.Ab8RN6Lcv9M_zUHXF-F5oDRDBDSxCGB-Q3ccu6yeoQ43Yp74Cg"
+API_KEY = "aaa"
 MODEL = "gemini-2.5-flash-image"
 
 IMAGE_PATH = "test_vision_model/sample1.png"
